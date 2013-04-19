@@ -1,0 +1,43 @@
+{
+    "name": "kapitchi/kap-page",
+    "description": "ZF2 page module",
+    "keywords": [
+        "kapitchi",
+        "zf2",
+        "page"
+    ],
+    "homepage": "http://kapitchi.com",
+    "authors": [
+        {
+            "name": "Matus Zeman",
+            "email": "mz@kapitchi.com",
+            "homepage": "http://kapitchi.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Andrej Kukucka",
+            "email": "andrej.kuku@gmail.com",
+            "homepage": "http://kapitchi.com",
+            "role": "Developer"
+        }
+       
+    ],
+    "support": {
+        "email": "dev@kapitchi.com"
+    },
+    "minimum-stability": "dev",
+    
+    "require": {
+        "php": ">=5.3.3",
+        "kapitchi/base": "dev-master",
+        "kapitchi/entity": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "KapPage": "src/"
+        },
+        "classmap": [
+            "./Module.php"
+        ]
+    }
+}
