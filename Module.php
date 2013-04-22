@@ -17,11 +17,79 @@ use Zend\ModuleManager\Feature\ControllerProviderInterface,
     KapitchiEntity\Mapper\EntityDbAdapterMapper;
 
 class Module extends AbstractModule {
+    
+    
 
     public function onBootstrap(EventInterface $e) {
         parent::onBootstrap($e);
     }
+    
+    public function getControllerConfig() {
+        return array(
+            'factories' => array(
+                //API
+                    //Page
+                'KapPage\Controller\Api\Page' => function($sm) {
+                    $cont = new Controller\Api\PageRestfulController(
+                        $sm->getServiceLocator()->get('KapPage\Service\Page')
+                    );
+                    return $cont;
+                },
+            )
+        );
+    }
+    
+    public function getViewHelperConfig() {
+        return array(
+             'factories' => array(
+                //page
+                'page' => function($sm) {
+                    $ins = new View\Helper\Page($sm->getServiceLocator()->get('KapPage\Service\Page'));
+                    return $ins;
+                },
+            )
+        );
+    }
 
+     public function getServiceConfig() {
+        return array(
+            'invokables' => array(
+                'KapPage\Entity\Page' => 'KapPage\Entity\Page',
+            ),
+            'factories' => array(
+                //Page
+                'KapPage\Service\Page' => function ($sm) {
+                    $s = new Service\Page(
+                        $sm->get('KapPage\Mapper\PageDbAdapter'),
+                        $sm->get('KapPage\Entity\Page'),
+                        $sm->get('KapPage\Entity\PageHydrator')
+                    );
+                    return $s;
+                },
+                'KapPage\Mapper\PageDbAdapter' => function ($sm) {
+                    return new Mapper\PageDbAdapter(
+                        $sm->get('Zend\Db\Adapter\Adapter'),
+                        $sm->get('KapPage\Entity\Page'),
+                        $sm->get('KapPage\Entity\PageHydrator'),    
+                        'page'
+                    );
+                },
+                'KapPage\Entity\PageHydrator' => function ($sm) {
+                    //needed here because hydrator tranforms camelcase to underscore
+                    return new \Zend\Stdlib\Hydrator\ClassMethods(false);
+                },
+                'KapPage\Form\Page' => function ($sm) {
+                    $ins = new Form\Page('page');
+                    $ins->setInputFilter($sm->get('KapPage\Form\PageInputFilter'));
+                    return $ins;
+                },
+                'KapPage\Form\PageInputFilter' => function ($sm) {
+                    $ins = new Form\PageInputFilter();
+                    return $ins;
+                },        
+            )
+        );
+    }
     public function getDir() {
         return __DIR__;
     }
