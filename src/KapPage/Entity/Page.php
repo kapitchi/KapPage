@@ -7,6 +7,8 @@
  */
 namespace KapPage\Entity;
 
+use KapPage\Model\PageInterface;
+
 /*
  * 
  */
@@ -50,7 +52,5 @@ class Page
         $this->keywords = $keywords;
     }
 
-
-    
 }
 

@@ -22,6 +22,11 @@ class Module extends AbstractModule {
 
     public function onBootstrap(EventInterface $e) {
         parent::onBootstrap($e);
+        
+        $app = $e->getApplication();
+        $sm = $app->getServiceManager();
+        $em = $app->getEventManager();
+        $em->attach($sm->get('KapPage\Mvc\View\PageMetaRenderer'));
     }
     
     public function getControllerConfig() {
@@ -57,6 +62,14 @@ class Module extends AbstractModule {
                 'KapPage\Entity\Page' => 'KapPage\Entity\Page',
             ),
             'factories' => array(
+                'KapPage\Mvc\View\PageMetaRenderer' => function ($sm) {
+                    $s = new Mvc\View\PageMetaRenderer(
+                        $sm->get('ViewRenderer'),
+                        $sm->get('KapPage\Service\Page')
+                    );
+                    return $s;
+                },
+                
                 //Page
                 'KapPage\Service\Page' => function ($sm) {
                     $s = new Service\Page(
