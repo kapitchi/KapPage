@@ -117,6 +117,7 @@ class PageMetaRenderer implements ListenerAggregateInterface
                             'label' => $model->getTitle(),
                             'title' => $model->getTitle(),
                             'active' => true,
+                            'visible' => false,
                             'uri' => $uri,
                         ));
                     }
