@@ -16,6 +16,7 @@ use Zend\Mvc\MvcEvent;
 use Zend\Stdlib\ResponseInterface as Response;
 use Zend\View\Renderer\RendererInterface;
 use Zend\View\View;
+use KapPage\Model\PageInterface;
 
 class PageMetaRenderer implements ListenerAggregateInterface
 {
@@ -79,49 +80,10 @@ class PageMetaRenderer implements ListenerAggregateInterface
 
         try {
             $pageService = $this->getPageService();
-            $model = $pageService->getCurrentPageModel();
-            if($model) {
-                $headTitle = $viewRenderer->plugin('headTitle');
-                $headTitle->set($model->getTitle());
-                $headMeta = $viewRenderer->plugin('headMeta');
-                $headMeta->appendName('description', $model->getDescription());
-                $headMeta->appendName('keywords', $model->getKeywords());
-                
-                
-                //breadcrumbs
-                $pageId = $model->getParentPageId();
-                if($pageId) {
-                    $navigationHelper = $this->getViewRenderer()->plugin('Navigation')->setContainer('DefaultNavigation');
-                    $cont = $navigationHelper->getContainer();
-                        
-                    $parentPage = $cont->findBy('id', $pageId);
-                    if($parentPage) {
-                        $uri = $request->getRequestUri();
-                        
-                        //current URL params for Nav Page factory
-//                        $routeMatch = $e->getRouteMatch();
-//                        $mainParams['route'] = $routeMatch->getMatchedRouteName();
-//                        $mainParams['controller'] = $routeMatch->getParam('__CONTROLLER__');
-//                        $mainParams['action'] = $routeMatch->getParam('action');
-//                        
-//                        $params = $routeMatch->getParams();
-//                        
-//                        $parentPage->addPage(array_merge(array(
-//                            'label' => $model->getTitle(),
-//                            'title' => $model->getTitle(),
-//                            'active' => true,
-//                            'params' => $params,
-//                        ), $mainParams));
-                        
-                        $parentPage->addPage(array(
-                            'label' => $model->getTitle(),
-                            'title' => $model->getTitle(),
-                            'active' => true,
-                            'visible' => false,
-                            'uri' => $uri,
-                        ));
-                    }
-                }
+            $page = $pageService->getCurrentPageModel();
+            if($page) {
+                $this->setHeadMeta($page);
+                $this->appendPageToNavigationContainer($page, 'DefaultNavigation', $request->getRequestUri());
             }
         } catch(\Exception $ex) {
             if ($e->getName() === MvcEvent::EVENT_RENDER_ERROR) {
@@ -136,6 +98,37 @@ class PageMetaRenderer implements ListenerAggregateInterface
         }
 
         return $response;
+    }
+    
+    protected function appendPageToNavigationContainer(PageInterface $page, $container, $pageUri)
+    {
+        $pageId = $page->getParentPageId();
+        if($pageId) {
+            $navigationHelper = $this->getViewRenderer()->plugin('Navigation')->setContainer('DefaultNavigation');
+            $cont = $navigationHelper->getContainer();
+
+            $parentPage = $cont->findBy('id', $pageId);
+            if($parentPage) {
+                $parentPage->addPage(array(
+                    'label' => $page->getTitle(),
+                    'title' => $page->getTitle(),
+                    'active' => true,
+                    'visible' => false,
+                    'uri' => $pageUri,
+                ));
+            }
+        }
+    }
+    
+    protected function setHeadMeta(PageInterface $page)
+    {
+        $viewRenderer = $this->getViewRenderer();
+
+        $headTitle = $viewRenderer->plugin('headTitle');
+        $headTitle->set($page->getTitle());
+        $headMeta = $viewRenderer->plugin('headMeta');
+        $headMeta->appendName('description', $page->getDescription());
+        $headMeta->appendName('keywords', $page->getKeywords());
     }
 
     public function getViewRenderer()

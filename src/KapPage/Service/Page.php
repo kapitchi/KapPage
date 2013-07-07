@@ -62,6 +62,9 @@ class Page extends EntityService
             $hydrator->hydrate($pageModel, $page);
             $pageModel = $page;
         }
+        elseif(!$pageModel instanceof PageInterface) {
+            throw new \InvalidArgumentException("PageInterface or array expected");
+        }
         
         $this->currentPageModel = $pageModel;
     }
