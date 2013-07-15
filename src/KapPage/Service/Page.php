@@ -7,8 +7,10 @@
  */
 namespace KapPage\Service;
 
+use Zend\Stdlib\Hydrator\ClassMethods;
 use KapitchiEntity\Service\EntityService;
 use KapPage\Model\PageInterface;
+use KapPage\Model\GenericPage;
 use KapPage\Model\HasPageInterface;
 
 class Page extends EntityService
@@ -46,7 +48,7 @@ class Page extends EntityService
     
     public function createModelFromEntity(\KapPage\Entity\Page $entity)
     {
-        $model = new \KapPage\Model\GenericPage();
+        $model = new GenericPage();
         $model->setTitle($entity->getTitle());
         $model->setDescription($entity->getDescription());
         $model->setKeywords($entity->getKeywords());
@@ -57,8 +59,8 @@ class Page extends EntityService
     public function setCurrentPageModel($pageModel)
     {
         if(is_array($pageModel)) {
-            $page = new \KapPage\Model\GenericPage();
-            $hydrator = new \Zend\Stdlib\Hydrator\ClassMethods();
+            $page = new GenericPage();
+            $hydrator = new ClassMethods();
             $hydrator->hydrate($pageModel, $page);
             $pageModel = $page;
         }
